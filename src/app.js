@@ -4,11 +4,12 @@ const hbs = require("hbs");
 const geocode = require("./utils/01-geoCode");
 const forecast = require("./utils/02-forecast");
 
+const port = process.env.PORT || 3000;
 const app = express();
 
 //Define Path For Express Directory
 const publicDirectoryPath = path.join(__dirname, "../public");
-const viewPath = path.join(__dirname, "../templates/views"); 
+const viewPath = path.join(__dirname, "../templates/views");
 const partialPath = path.join(__dirname, "../templates/partials");
 
 //Set HandleBars Engine and View Location
@@ -49,21 +50,24 @@ app.get("/weather", (req, res) => {
     });
   }
 
-  geocode(req.query.address, (error, {latitude, longitude, location } = {} ) => {
-    if (error) {
-      return res.send({ error });
-    }
-    forecast(latitude, longitude, (error, forecastData) => {
+  geocode(
+    req.query.address,
+    (error, { latitude, longitude, location } = {}) => {
       if (error) {
         return res.send({ error });
       }
-      res.send({
-        forecast: forecastData,
-        location,
-        address: req.query.address,
+      forecast(latitude, longitude, (error, forecastData) => {
+        if (error) {
+          return res.send({ error });
+        }
+        res.send({
+          forecast: forecastData,
+          location,
+          address: req.query.address,
+        });
       });
-    });
-  });
+    }
+  );
 });
 
 app.get("/help/*", (req, res) => {
@@ -82,7 +86,6 @@ app.get("*", (req, res) => {
   });
 });
 
-app.listen(3000, () => {
-  console.log("Server is up on port number 3000 ");
+app.listen(port, () => {
+  console.log("Server is up on port : " + 3000);
 });
-
